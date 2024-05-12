@@ -75,6 +75,7 @@ For our Python libraries to understand the interface specified by the GTFS-realt
 virtualenv ~/.env/gtfs-realtime-bindings
 source ~/.env/gtfs-realtime-bindings/bin/activate
 pip install grpcio-tools
+python3 -m grpc_tools.protoc -I gtfs_realtime_translators/bindings/ --python_out=gtfs_realtime_translators/bindings/ gtfs_realtime_translators/bindings/gtfs-realtime.proto
 python3 -m grpc_tools.protoc -I gtfs_realtime_translators/bindings/ --python_out=gtfs_realtime_translators/bindings/ gtfs_realtime_translators/bindings/intersection.proto
 ```
 Since we are using the published spec bindings, we must do one more step. Inside the generated file, `gtfs_realtime_translators/bindings/intersection_pb2.py`, change the following line
