@@ -4,7 +4,8 @@ from gtfs_realtime_translators.translators import LaMetroGtfsRealtimeTranslator,
     SeptaRegionalRailTranslator, MtaSubwayGtfsRealtimeTranslator, NjtRailGtfsRealtimeTranslator, \
     CtaSubwayGtfsRealtimeTranslator, CtaBusGtfsRealtimeTranslator, PathGtfsRealtimeTranslator, \
     PathNewGtfsRealtimeTranslator, SwiftlyGtfsRealtimeTranslator, WcdotGtfsRealTimeTranslator, \
-    NjtBusGtfsRealtimeTranslator, MbtaGtfsRealtimeTranslator, MnmtGtfsRealtimeTranslator
+    NjtBusGtfsRealtimeTranslator, MbtaGtfsRealtimeTranslator, MnmtGtfsRealtimeTranslator, \
+    DeVVSAlertGtfsRealtimeTranslator
 
 
 class TranslatorKeyWarning(Warning):
@@ -17,6 +18,7 @@ class TranslatorRegistry:
         'septa-regional-rail': SeptaRegionalRailTranslator,
         'cta-subway': CtaSubwayGtfsRealtimeTranslator,
         'cta-bus': CtaBusGtfsRealtimeTranslator,
+        'de-vvs-alerts': DeVVSAlertGtfsRealtimeTranslator,
         'mta-subway': MtaSubwayGtfsRealtimeTranslator,
         'njt-rail': NjtRailGtfsRealtimeTranslator,
         'njt-bus': NjtBusGtfsRealtimeTranslator,
