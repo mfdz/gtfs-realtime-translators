@@ -12,9 +12,9 @@ with io.open(f'{PACKAGE_ROOT}/__version__.py', 'r', encoding='utf-8') as f:
     exec(f.read(), about)
 
 requirements = [
-    'gtfs-realtime-bindings==0.0.5',
-    'pendulum==2.0.5',
-    'xmltodict==0.12.0',
+    'gtfs-realtime-bindings==1.0.0',
+    'pendulum==3.0.0',
+    'xmltodict==0.13.0',
 ]
 
 setup(
@@ -33,6 +33,6 @@ setup(
         f'{PACKAGE_ROOT}.bindings',
         f'{PACKAGE_ROOT}.validators',
     ],
-    license='MIT license',
+    license=about['__license__'],
     install_requires=requirements,
 )
