@@ -5,6 +5,7 @@ from gtfs_realtime_translators.translators import LaMetroGtfsRealtimeTranslator,
         SwiftlyGtfsRealtimeTranslator, \
         CtaSubwayGtfsRealtimeTranslator, \
         CtaBusGtfsRealtimeTranslator, \
+        DeVVSAlertGtfsRealtimeTranslator, \
         MtaSubwayGtfsRealtimeTranslator, \
         NjtRailGtfsRealtimeTranslator, \
         NjtBusGtfsRealtimeTranslator, \
@@ -27,6 +28,7 @@ def test_registry_for_valid_key():
     assert TranslatorRegistry.get('swiftly') == SwiftlyGtfsRealtimeTranslator
     assert TranslatorRegistry.get('wcdot-bus') == WcdotGtfsRealTimeTranslator
     assert TranslatorRegistry.get('mbta') == MbtaGtfsRealtimeTranslator
+    assert TranslatorRegistry.get('de-vvs-alerts') == DeVVSAlertGtfsRealtimeTranslator
 
 def test_registry_for_invalid_key():
     with pytest.warns(TranslatorKeyWarning):

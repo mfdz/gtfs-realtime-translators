@@ -8,6 +8,21 @@ class Entity:
     def create(entity_id, **kwargs):
         return gtfs_realtime.FeedEntity(id=entity_id, **kwargs)
 
+class Alert:
+
+    @staticmethod
+    def create_from(entity, *args, **kwargs):
+        new_entity = gtfs_realtime.FeedEntity()
+        new_entity.CopyFrom(entity)
+        
+        informed_entity = kwargs.get('informed_entity', None)
+        if informed_entity is not None:
+            gtfsrt_informed_entity  = [ gtfs_realtime.EntitySelector(**selector) for selector in informed_entity] 
+            new_entity.alert.ClearField('informed_entity')
+            new_entity.alert.informed_entity.extend([ gtfs_realtime.EntitySelector(**selector) for selector in informed_entity] )
+        
+        return new_entity
+
 
 class TripUpdate:
 

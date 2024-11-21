@@ -13,7 +13,7 @@ Following the [GTFS-realtime spec](https://developers.google.com/transit/gtfs-re
 
 A `FeedMessage` is a list of _entities_, each of which is one of the types above. A `FeedMessage` may have entities of different types.
 
-As of 2019-06-15, only `TripUpdate` is supported.
+As of 2024-11-20, only `TripUpdate` and `Alert` are supported.
 
 ## Installation
 ```
