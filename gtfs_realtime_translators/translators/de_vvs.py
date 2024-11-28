@@ -1,4 +1,5 @@
 import csv
+import datetime
 import io
 import json
 import logging
@@ -26,8 +27,10 @@ class DeVVSAlertGtfsRealtimeTranslator:
 
     TIMEZONE = 'Europe/Berlin'
 
-    def __init__(self, gtfsfile):
+    def __init__(self, gtfsfile, high_prio_keywords = [], high_prio_route_ids = []):
         self.id_mapper = DeVVSGtfsIdMapper(gtfsfile)
+        self.high_prio_keywords = high_prio_keywords
+        self.high_prio_route_ids = high_prio_route_ids
 
     def __call__(self, data):
         feed = gtfs_realtime.FeedMessage()
@@ -39,7 +42,7 @@ class DeVVSAlertGtfsRealtimeTranslator:
         informed_entity = self.__map_informed_entities(entity.alert.informed_entity)
         feedEntity = Alert.create_from(entity, informed_entity = informed_entity)
 
-        # TODO feedEntity.alert.severity_level = 2
+        
         header = entity.alert.header_text.translation[0].text.lower() if entity.alert.HasField('header_text') else ''
         if entity.alert.HasField('description_text'):
             html_encoded_description = entity.alert.description_text.translation[0].text
@@ -55,6 +58,7 @@ class DeVVSAlertGtfsRealtimeTranslator:
         if not feedEntity.alert.HasField('cause') or feedEntity.alert.cause == gtfs_realtime.Alert.Cause.UNKNOWN_CAUSE:
             feedEntity.alert.cause = self.__map_cause(header, description.lower())
         
+        self.__set_severity_level(feedEntity)
         # TODO other attributes
         return feedEntity
 
@@ -142,6 +146,34 @@ class DeVVSAlertGtfsRealtimeTranslator:
                  
         return mapped_entities
 
+    def __set_severity_level(self, entity):
+        # set default severity
+        entity.alert.severity_level = 3
+        if self.__starts_latest_in(entity, datetime.timedelta(weeks=1)):
+            # if one of keywords is contained in message, set prio to 1
+            if entity.alert.HasField('description_text'):#
+                description = entity.alert.description_text.translation[0].text
+                for high_prio_keyword in self.high_prio_keywords:      
+                    if high_prio_keyword in description:
+                        logger.debug(f'Set severity for: {description}')
+                        entity.alert.severity_level = 4
+            # if at least one of informed entity route_ids is contained in this set, set prio to 1
+            for informed_entity in entity.alert.informed_entity:
+                print(informed_entity.route_id, " ", informed_entity.route_id in self.high_prio_route_ids)
+                if informed_entity.HasField('route_id') and informed_entity.route_id in self.high_prio_route_ids:
+                    logger.debug(f'Set severity for: {informed_entity.route_id}')
+                    entity.alert.severity_level = 4
+
+    def __now(self):
+        return datetime.datetime.now()
+
+    def __starts_latest_in(self, entity, timedelta):
+        now = self.__now()
+        latest_start_seconds = (now + timedelta).timestamp()
+        for period in entity.alert.active_period:
+            if period.HasField('start') and period.start <= latest_start_seconds:
+                return True
+        return False
 
 class DeVVSGtfsIdMapper:
 
@@ -254,4 +286,4 @@ class DeVVSGtfsIdMapper:
             logger.warning(f'Warning: stop_id {gtfsrt_stop_id} not in static GTFS feed')
             return { gtfsrt_stop_id }
 
-        return self.parent_stations_stops[gtfsrt_stop_id]
+        return self.parent_stations_stops[gtfsrt_stop_id]           
