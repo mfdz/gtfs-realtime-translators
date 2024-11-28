@@ -41,7 +41,7 @@ class DeVVSAlertGtfsRealtimeTranslator:
 
         # TODO feedEntity.alert.severity_level = 2
         header = entity.alert.header_text.translation[0].text.lower() if entity.alert.HasField('header_text') else ''
-        if entity.alert.HasField('header_text'):
+        if entity.alert.HasField('description_text'):
             html_encoded_description = entity.alert.description_text.translation[0].text
             soup = BeautifulSoup(html_encoded_description, "lxml")
             description = soup.get_text()
