@@ -159,7 +159,6 @@ class DeVVSAlertGtfsRealtimeTranslator:
                         entity.alert.severity_level = 4
             # if at least one of informed entity route_ids is contained in this set, set prio to 1
             for informed_entity in entity.alert.informed_entity:
-                print(informed_entity.route_id, " ", informed_entity.route_id in self.high_prio_route_ids)
                 if informed_entity.HasField('route_id') and informed_entity.route_id in self.high_prio_route_ids:
                     logger.debug(f'Set severity for: {informed_entity.route_id}')
                     entity.alert.severity_level = 4
