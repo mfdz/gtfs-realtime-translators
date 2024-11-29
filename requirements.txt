@@ -2,3 +2,4 @@ gtfs-realtime-bindings==1.0.0
 pendulum==3.0.0
 pytest==6.2.5
 xmltodict==0.13.0
+beautifulsoup4==4.12.3
