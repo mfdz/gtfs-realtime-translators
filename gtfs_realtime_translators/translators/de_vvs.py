@@ -116,6 +116,10 @@ class DeVVSAlertGtfsRealtimeTranslator:
             return gtfs_realtime.Alert.Cause.CONSTRUCTION
         if self.__header_or_desc_contains_any(header, description, ['konzert', 'veranstaltung']):
             return gtfs_realtime.Alert.Cause.OTHER_CAUSE # IMHO a cause EVENT would make sense
+        if self.__header_or_desc_contains_any(header, description, ['erdrutsch', 'hangrutsch', 'unwetter']):
+            return gtfs_realtime.Alert.Cause.WEATHER # maybe one day, there'll be a Cause NATURAL_DISASTER
+        if self.__header_or_desc_contains_any(header, description, ['unfall']):
+            return gtfs_realtime.Alert.Cause.ACCIDENT
 
         logger.info(f'Unknown cause for: {header}')
         return gtfs_realtime.Alert.Cause.UNKNOWN_CAUSE
