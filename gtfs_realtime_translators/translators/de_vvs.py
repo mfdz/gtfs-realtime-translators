@@ -36,7 +36,10 @@ class DeVVSAlertGtfsRealtimeTranslator:
         feed = gtfs_realtime.FeedMessage()
         feed.ParseFromString(data)
         entities = [self.__map_alert(idx, feedEntity) for idx, feedEntity in enumerate(feed.entity)]
-        return FeedMessage.create(entities=entities)
+        message = FeedMessage.create(entities=entities)
+        message.header.incrementality = feed.header.incrementality
+        message.header.timestamp = feed.header.timestamp
+        return message
 
     def __map_alert(self, _id, entity):
         informed_entity = self.__map_informed_entities(entity.alert.informed_entity)
