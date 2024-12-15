@@ -62,7 +62,11 @@ class DeVVSAlertGtfsRealtimeTranslator:
             feedEntity.alert.cause = self.__map_cause(header, description.lower())
         
         self.__set_severity_level(feedEntity)
-        # TODO other attributes
+
+        if feedEntity.alert.HasField('url') and feedEntity.alert.url.translation[0].text == 'https://www.vvs.de':
+            # if url is vvs homepage, we deem it not specific and remove it
+            feedEntity.alert.url.Clear()
+        
         return feedEntity
 
     def __map_effect(self, header, description) -> int:
