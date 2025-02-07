@@ -132,6 +132,38 @@ class DeVVSAlertGtfsRealtimeTranslator:
     def __header_or_desc_contains_any(header, desc, substring_list):
         return any(map(header.__contains__, substring_list)) or any(map(desc.__contains__, substring_list))
 
+    def __pack_informed_entities(self, informed_entities):
+        entities_by_route_id = {}
+        packed_entities = []
+        # collect informed_entities which select only route, optionally agency and not trip or stop
+        for entity in informed_entities:
+            if not 'stop_id' in entity and not 'trip_id' in entity and 'route_id' in entity and 'direction_id' in entity:
+                route_id = entity['route_id']
+                if route_id in entities_by_route_id:
+                    entities = entities_by_route_id[route_id]
+                    if len(entities)==1:
+                        new_entity = {}
+                        if 'agency_id' in entity:
+                            new_entity['agency_id'] = entity['agency_id']
+                        new_entity['route_id'] = entity['route_id']
+                        # do not copy direction_id
+                        packed_entities.append(new_entity)
+                        # append entity to assure we don't see more than two by route_id
+                        entities.append(entity)
+                    else:
+                        logger.error(f'Seeing more than 2 informed_entities with route_id {route_id}')
+                else:
+                    entities_by_route_id[route_id] = [entity]
+            else:
+                packed_entities.append(entity)
+
+        # for entities which had no second informed_entity with same route_id, add as is 
+        for entities_for_route_id in entities_by_route_id.values():
+            if len(entities_for_route_id) == 1:
+                packed_entities.append(entities_for_route_id[0])
+                
+        return packed_entities
+
     def __map_informed_entities(self, informed_entities):
         mapped_entities = []
         for entity in informed_entities:
@@ -155,7 +187,7 @@ class DeVVSAlertGtfsRealtimeTranslator:
             else:
                 mapped_entities.append(new_entity)
                  
-        return mapped_entities
+        return self.__pack_informed_entities(mapped_entities)
 
     def __set_severity_level(self, entity):
         # set default severity

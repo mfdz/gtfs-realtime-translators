@@ -17,6 +17,9 @@ def test_de_vvs_alerts(de_vvs_alerts):
     translator = DeVVSAlertGtfsRealtimeTranslator('test/fixtures/de_vvs.gtfs.zip')
     with pendulum.travel_to(pendulum.datetime(2024, 3, 17, 00, 14, 35)):
         message = translator(de_vvs_alerts)
+        entity = message.entity[3]
+        print(entity.alert.informed_entity)
+        assert len(entity.alert.informed_entity) == 1
 
 def test_de_vvs_route_id_mapping():
     mapper = DeVVSGtfsIdMapper('test/fixtures/de_vvs.gtfs.zip')
