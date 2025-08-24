@@ -11,6 +11,8 @@ from gtfs_realtime_translators.factories import Alert, FeedMessage
 
 logger = logging.getLogger(__name__)
 
+HIGH_SEVERITY_NOT_EARLIER_THAN_TIMEDELTA_BEFORE = datetime.timedelta(days=3)
+
 class DeVVSAlertGtfsRealtimeTranslator:
     ''' 
     Fixes VVS GTFS-RT-Alert feed (available via https://gtfsr-servicealerts.vvs.de) by:
@@ -193,7 +195,8 @@ class DeVVSAlertGtfsRealtimeTranslator:
     def __set_severity_level(self, entity):
         # set default severity
         entity.alert.severity_level = 3
-        if self.__starts_latest_in(entity, datetime.timedelta(weeks=1)):
+
+        if self.__starts_latest_in(entity, HIGH_SEVERITY_NOT_EARLIER_THAN_TIMEDELTA_BEFORE):
             # if one of keywords is contained in message, set prio to 1
             if entity.alert.HasField('description_text'):#
                 description = entity.alert.description_text.translation[0].text
