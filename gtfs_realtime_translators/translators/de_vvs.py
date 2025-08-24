@@ -1,9 +1,11 @@
 import csv
+import dateparser
 import datetime
 import io
 import json
 import logging
 import pendulum
+import re
 import zipfile
 from bs4 import BeautifulSoup
 from google.transit import gtfs_realtime_pb2 as gtfs_realtime
@@ -47,6 +49,24 @@ class DeVVSAlertGtfsRealtimeTranslator:
         soup = BeautifulSoup(html_encoded_description, "lxml")
         description = soup.get_text()
         return description
+
+    @staticmethod
+    def find(pattern, input):
+        p = re.compile(pattern, re.IGNORECASE)
+        return p.search(input)
+
+    @staticmethod
+    def extract_impact_period_start(line):
+        result = DeVVSAlertGtfsRealtimeTranslator.find(r'\d\d?.[\/\.\d und-]* ((januar|februar|märz|april|mai|juni|juli|august|september|oktober|november|dezember) )?(20)?\d\d', line) 
+        if result is not None:
+            return dateparser.parse(result.group(), languages=['de'], settings={'DATE_ORDER': 'YMD'})
+        result = DeVVSAlertGtfsRealtimeTranslator.find(r'\d\d?.\d\d?.(20)?\d\d', line) 
+        if result is not None:
+            return dateparser.parse(result.group(), languages=['de'], settings={'DATE_ORDER': 'YMD'})
+        result = DeVVSAlertGtfsRealtimeTranslator.find(r'\d\d?. (januar|februar|märz|april|mai|juni|juli|august|september|oktober|november|dezember) 20\d\d', line)
+        if result is not None:
+            return dateparser.parse(result.group(), languages=['de'], settings={'DATE_ORDER': 'YMD'})
+               
     def __map_alert(self, _id, entity):
         informed_entity = self.__map_informed_entities(entity.alert.informed_entity)
         feedEntity = Alert.create_from(entity, informed_entity = informed_entity)
@@ -216,8 +236,16 @@ class DeVVSAlertGtfsRealtimeTranslator:
     def __starts_latest_in(self, entity, timedelta):
         now = self.__now()
         latest_start_seconds = (now + timedelta).timestamp()
+        now_timestamp = now.timestamp()
+        
+        impact_period_start = None
+        if entity.alert.HasField('description_text'):#
+            description = entity.alert.description_text.translation[0].text
+            impact_period_start = self.extract_impact_period_start(description)
+        
         for period in entity.alert.active_period:
-            if period.HasField('start') and period.start <= latest_start_seconds:
+            if period.HasField('start') and period.start <= latest_start_seconds:# and (impact_period_start is None or impact_period_start.timestamp() <= latest_start_seconds):
+                if not period.HasField('end') or period.end > now_timestamp:
                 return True
         return False
 
