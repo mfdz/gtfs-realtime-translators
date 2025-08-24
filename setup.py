@@ -15,6 +15,7 @@ requirements = [
     'gtfs-realtime-bindings==1.0.0',
     'pendulum==3.0.0',
     'xmltodict==0.13.0',
+    'dateparser==1.2.2',
 ]
 
 setup(
