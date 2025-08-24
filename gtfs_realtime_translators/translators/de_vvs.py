@@ -246,7 +246,7 @@ class DeVVSAlertGtfsRealtimeTranslator:
         for period in entity.alert.active_period:
             if period.HasField('start') and period.start <= latest_start_seconds:# and (impact_period_start is None or impact_period_start.timestamp() <= latest_start_seconds):
                 if not period.HasField('end') or period.end > now_timestamp:
-                return True
+                    return True
         return False
 
 class DeVVSGtfsIdMapper:
