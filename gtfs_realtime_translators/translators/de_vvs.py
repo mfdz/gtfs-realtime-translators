@@ -41,16 +41,17 @@ class DeVVSAlertGtfsRealtimeTranslator:
         message.header.timestamp = feed.header.timestamp
         return message
 
+    def __transform_description(self, header, html_encoded_description):
+        soup = BeautifulSoup(html_encoded_description, "lxml")
+        description = soup.get_text()
+        return description
     def __map_alert(self, _id, entity):
         informed_entity = self.__map_informed_entities(entity.alert.informed_entity)
         feedEntity = Alert.create_from(entity, informed_entity = informed_entity)
 
-        
         header = entity.alert.header_text.translation[0].text.lower() if entity.alert.HasField('header_text') else ''
         if entity.alert.HasField('description_text'):
-            html_encoded_description = entity.alert.description_text.translation[0].text
-            soup = BeautifulSoup(html_encoded_description, "lxml")
-            description = soup.get_text()
+            description = self.__transform_description(header, entity.alert.description_text.translation[0].text)
             feedEntity.alert.description_text.translation[0].text = description
         else:
             description = ''
